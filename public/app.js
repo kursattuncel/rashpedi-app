@@ -9,9 +9,132 @@ const jsonBox = document.getElementById('json');
 const urgent = document.getElementById('urgent');
 const okBadge = document.getElementById('ok');
 
-let chart;
+// New form elements
+const ageYears = document.getElementById('age-years');
+const ageMonths = document.getElementById('age-months');
+const biologicalSex = document.getElementById('biological-sex');
+const temperature = document.getElementById('temperature');
+const tempC = document.getElementById('temp-c');
+const tempF = document.getElementById('temp-f');
 
-function enableGo() { goBtn.disabled = !fileBlob; }
+let chart;
+let isCelsius = true;
+
+// Temperature unit toggle
+tempC.addEventListener('click', () => {
+  if (!isCelsius) {
+    isCelsius = true;
+    tempC.classList.add('active');
+    tempF.classList.remove('active');
+    convertTemperature();
+  }
+});
+
+tempF.addEventListener('click', () => {
+  if (isCelsius) {
+    isCelsius = false;
+    tempF.classList.add('active');
+    tempC.classList.remove('active');
+    convertTemperature();
+  }
+});
+
+function convertTemperature() {
+  const temp = parseFloat(temperature.value);
+  if (!isNaN(temp)) {
+    if (isCelsius) {
+      // Convert F to C
+      temperature.value = ((temp - 32) * 5/9).toFixed(1);
+    } else {
+      // Convert C to F
+      temperature.value = (temp * 9/5 + 32).toFixed(1);
+    }
+  }
+}
+
+// Validation functions
+function validateAge() {
+  const years = parseInt(ageYears.value) || 0;
+  const months = parseInt(ageMonths.value) || 0;
+  const yearsError = document.getElementById('age-years-error');
+  const monthsError = document.getElementById('age-months-error');
+  
+  let isValid = true;
+  
+  yearsError.textContent = '';
+  monthsError.textContent = '';
+  
+  if (ageYears.value && (years < 0 || years > 18)) {
+    yearsError.textContent = 'Age must be between 0-18 years';
+    isValid = false;
+  }
+  
+  if (ageMonths.value && (months < 0 || months > 11)) {
+    monthsError.textContent = 'Months must be between 0-11';
+    isValid = false;
+  }
+  
+  if (years === 18 && months > 0) {
+    monthsError.textContent = 'Cannot exceed 18 years total';
+    isValid = false;
+  }
+  
+  return isValid;
+}
+
+function validateTemperature() {
+  const temp = parseFloat(temperature.value);
+  const tempError = document.getElementById('temperature-error');
+  
+  tempError.textContent = '';
+  
+  if (!temperature.value) return true; // Optional field
+  
+  if (isNaN(temp)) {
+    tempError.textContent = 'Please enter a valid temperature';
+    return false;
+  }
+  
+  if (isCelsius) {
+    if (temp < 32 || temp > 45) {
+      tempError.textContent = 'Temperature must be between 32-45°C';
+      return false;
+    }
+  } else {
+    if (temp < 90 || temp > 113) {
+      tempError.textContent = 'Temperature must be between 90-113°F';
+      return false;
+    }
+  }
+  
+  return true;
+}
+
+function validateForm() {
+  const isAgeValid = validateAge();
+  const isTempValid = validateTemperature();
+  return isAgeValid && isTempValid;
+}
+
+// Add validation listeners
+ageYears.addEventListener('input', () => {
+  validateAge();
+  enableGo();
+});
+
+ageMonths.addEventListener('input', () => {
+  validateAge();
+  enableGo();
+});
+
+temperature.addEventListener('input', () => {
+  validateTemperature();
+  enableGo();
+});
+
+function enableGo() { 
+  goBtn.disabled = !fileBlob || !validateForm(); 
+}
 
 drop.addEventListener('click', () => fileInput.click());
 drop.addEventListener('dragover', (e) => { e.preventDefault(); drop.style.borderColor = '#7dd3fc'; });
@@ -41,7 +164,7 @@ function handleFile(f) {
 }
 
 goBtn.addEventListener('click', async () => {
-  if (!fileBlob) return;
+  if (!fileBlob || !validateForm()) return;
 
   goBtn.disabled = true;
   jsonBox.textContent = 'Analyzing…';
@@ -51,7 +174,34 @@ goBtn.addEventListener('click', async () => {
   try {
     const fd = new FormData();
     fd.append('photo', fileBlob);
-    if (subset.value.trim()) fd.append('diseases', subset.value.trim());
+    
+    // Add patient metadata
+    const patientData = {};
+    
+    if (ageYears.value || ageMonths.value) {
+      const years = parseInt(ageYears.value) || 0;
+      const months = parseInt(ageMonths.value) || 0;
+      patientData.age_months = years * 12 + months;
+    }
+    
+    if (biologicalSex.value) {
+      patientData.biological_sex = biologicalSex.value;
+    }
+    
+    if (temperature.value) {
+      const temp = parseFloat(temperature.value);
+      // Always send temperature in Celsius to server
+      patientData.temperature_celsius = isCelsius ? temp : ((temp - 32) * 5/9);
+      patientData.fever_present = patientData.temperature_celsius >= 38.0;
+    }
+    
+    if (Object.keys(patientData).length > 0) {
+      fd.append('patient_context', JSON.stringify(patientData));
+    }
+    
+    if (subset.value.trim()) {
+      fd.append('diseases', subset.value.trim());
+    }
 
     const r = await fetch('/api/analyze', { method: 'POST', body: fd });
     const txt = await r.text();

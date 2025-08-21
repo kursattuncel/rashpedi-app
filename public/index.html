@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Grandma’s Rash Advice (Not Medical Advice)</title>
+  <title>Grandma's Rash Advice (Not Medical Advice)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="preconnect" href="https://cdn.jsdelivr.net" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
@@ -27,8 +27,19 @@
       padding: 28px; text-align: center; cursor: pointer; transition: .2s ease; }
     .drop:hover { border-color: var(--accent); }
     .row { display:flex; gap:10px; align-items:center; margin-top: 12px; flex-wrap: wrap; }
-    input[type="text"] { width: 100%; padding: 12px 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,.12);
+    .form-group { margin-top: 12px; }
+    .form-row { display: flex; gap: 10px; margin-top: 8px; flex-wrap: wrap; }
+    .form-row > * { flex: 1; min-width: 120px; }
+    input[type="text"], input[type="number"], select { width: 100%; padding: 12px 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,.12);
       background: rgba(255,255,255,.03); color: var(--text); }
+    select { cursor: pointer; }
+    select option { background: var(--card); color: var(--text); }
+    label { display: block; margin-bottom: 4px; font-size: 14px; color: var(--muted); }
+    .input-group { display: flex; align-items: center; gap: 8px; }
+    .input-group input { flex: 1; }
+    .unit-toggle { background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); 
+      padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; transition: .2s ease; }
+    .unit-toggle.active { background: var(--accent); color: #000; }
     button { padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,.12);
       background: linear-gradient(180deg, #1e293b, #0f172a); color: #fff; font-weight: 700; cursor: pointer; }
     button:disabled { opacity: .6; cursor: not-allowed; }
@@ -42,13 +53,14 @@
     .ok { background: rgba(34,197,94,.15); border: 1px solid rgba(34,197,94,.25); color: #bbf7d0; }
     .disclaimer { margin-top: 10px; font-size: 13px; color: var(--muted);
       border-top: 1px dashed rgba(255,255,255,.12); padding-top: 10px; }
+    .error { color: var(--danger); font-size: 12px; margin-top: 4px; }
     @media (max-width: 900px) { .container { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
   <header>
-    <div class="brand">Grandma’s Rash Advice 👵 (Not Medical Advice)</div>
-    <div class="tagline">“Back then, we asked our grandmothers. Now you can also get a <em>grandma-style suggestion</em>. Upload a photo to receive a gentle, JSON-backed scoring.”</div>
+    <div class="brand">Grandma's Rash Advice 👵 (Not Medical Advice)</div>
+    <div class="tagline">"Back then, we asked our grandmothers. Now you can also get a <em>grandma-style suggestion</em>. Upload a photo to receive a gentle, JSON-backed scoring."</div>
   </header>
 
   <main class="container">
@@ -60,9 +72,43 @@
         <div style="font-size:12px;color:#9aa4b2;margin-top:6px;">JPEG/PNG, up to 5 MB</div>
       </div>
 
+      <div class="form-group">
+        <label>Patient Information</label>
+        <div class="form-row">
+          <div>
+            <label for="age-years">Age (Years)</label>
+            <input id="age-years" type="number" min="0" max="18" placeholder="0-18" />
+            <div id="age-years-error" class="error"></div>
+          </div>
+          <div>
+            <label for="age-months">Age (Months)</label>
+            <input id="age-months" type="number" min="0" max="11" placeholder="0-11" />
+            <div id="age-months-error" class="error"></div>
+          </div>
+          <div>
+            <label for="biological-sex">Biological Sex</label>
+            <select id="biological-sex">
+              <option value="">Select</option>
+              <option value="M">Male</option>
+              <option value="F">Female</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Body Temperature (Last 6 Hours)</label>
+        <div class="input-group">
+          <input id="temperature" type="number" step="0.1" placeholder="Enter temperature" />
+          <div class="unit-toggle active" id="temp-c">°C</div>
+          <div class="unit-toggle" id="temp-f">°F</div>
+        </div>
+        <div id="temperature-error" class="error"></div>
+      </div>
+
       <div class="row">
         <input id="subset" type="text" placeholder="Optional subset (comma-separated), e.g. hfmd,varicella,roseola" />
-        <button id="go" disabled>Get Grandma’s Suggestion</button>
+        <button id="go" disabled>Get Grandma's Suggestion</button>
       </div>
 
       <div class="preview" id="preview"><img id="thumb" alt="preview"></div>

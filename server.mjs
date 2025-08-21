@@ -47,12 +47,12 @@ const SYSTEM_PROMPT = `
 Role: You are a pediatric exanthem IMAGE triage assistant. You must look ONLY at the uploaded image(s) and produce a SINGLE JSON object scoring how well the rash matches a LIMITED set of diseases.
 
 Behavior & Scope
-- Use visual evidence ONLY. Ignore free-text symptom descriptions beyond minimal metadata.
+- Use visual evidence ONLY. You may also consider provided patient context (age, sex, temperature, fever status) to inform your analysis.
 - DO NOT provide treatment, medical advice, or a diagnosis. This is a visual suitability score, not a diagnosis.
 - You are restricted to the following labels and MUST NOT output anything else:
   allowed_labels = [
     "measles",
-    "rubella",
+    "rubella", 
     "fifth_disease",
     "roseola",
     "varicella",
@@ -64,9 +64,15 @@ Behavior & Scope
 
 Inputs
 - At least one image is required.
-- Optional: patient_context (e.g., age_months, fever_present, rash_duration_days).
+- Optional: patient_context (e.g., age_months, biological_sex, temperature_celsius, fever_present).
 - Optional: diseases from the user. If provided, score ONLY over allowed_labels ∩ diseases.
 - If no diseases list is provided, score over ALL allowed_labels.
+
+Patient Context Considerations:
+- Age patterns: roseola typically affects 6-24 months, fifth disease common in school-age children, varicella more common in unvaccinated children
+- Fever patterns: roseola typically has high fever followed by rash, measles has fever with rash, varicella may have mild fever
+- Sex differences: generally minimal for most pediatric exanthems
+- Temperature: fever presence can help differentiate conditions
 
 Output Format (STRICT: return ONLY one JSON object; no code fences, no extra text/emojis/markdown):
 {
@@ -85,6 +91,7 @@ Error Handling
 
 Scoring Rules
 - Produce an independent match score ∈ [0,1] for each scored label; scores need NOT sum to 1.
+- Consider both visual features AND patient context when scoring.
 - If nothing fits well, keep scores low but still select a single highest-scoring label as top and copy its score to confidence.
 - NEVER output labels outside allowed_labels.
 
@@ -93,6 +100,7 @@ Red-Flag Heuristics (visual only; keep items brief if present)
 - Meningeal signs or toxic appearance
 - Respiratory distress or signs of dehydration
 - Very extensive vesicles/ulcers with poor general condition
+- High fever (>40°C) with concerning rash pattern
 
 Privacy & Safety
 - Always include the exact disclaimer text above.
@@ -114,6 +122,39 @@ async function callWithRetries(fn, { maxAttempts = 4, base = 400, maxDelay = 400
     }
   }
   throw lastErr;
+}
+
+// Validate patient context
+function validatePatientContext(context) {
+  const errors = [];
+  
+  if (context.age_months !== undefined) {
+    const age = Number(context.age_months);
+    if (isNaN(age) || age < 0 || age > 216) { // 0-18 years
+      errors.push('age_months must be between 0-216');
+    }
+  }
+  
+  if (context.biological_sex !== undefined) {
+    if (!['M', 'F'].includes(context.biological_sex)) {
+      errors.push('biological_sex must be M or F');
+    }
+  }
+  
+  if (context.temperature_celsius !== undefined) {
+    const temp = Number(context.temperature_celsius);
+    if (isNaN(temp) || temp < 32 || temp > 45) {
+      errors.push('temperature_celsius must be between 32-45');
+    }
+  }
+  
+  if (context.fever_present !== undefined) {
+    if (typeof context.fever_present !== 'boolean') {
+      errors.push('fever_present must be boolean');
+    }
+  }
+  
+  return errors;
 }
 
 // --- Debug endpoint (no cost) ---
@@ -158,6 +199,26 @@ app.post('/api/analyze', upload.single('photo'), async (req, res) => {
       diseases = req.body.diseases.map(s => String(s).trim()).filter(Boolean);
     }
 
+    // Parse and validate patient context
+    let patientContext = {};
+    if (req.body.patient_context) {
+      try {
+        patientContext = JSON.parse(req.body.patient_context);
+        const validationErrors = validatePatientContext(patientContext);
+        if (validationErrors.length > 0) {
+          return res.status(400).json({ 
+            error: 'invalid_patient_context', 
+            details: validationErrors 
+          });
+        }
+      } catch (err) {
+        return res.status(400).json({ 
+          error: 'invalid_patient_context_json',
+          detail: err.message 
+        });
+      }
+    }
+
     const b64 = req.file.buffer.toString('base64');
     const mime = req.file.mimetype || 'image/jpeg';
 
@@ -167,8 +228,14 @@ app.post('/api/analyze', upload.single('photo'), async (req, res) => {
       generationConfig: { responseMimeType: "application/json", responseSchema: JSON_SCHEMA }
     });
 
+    // Prepare context for AI
+    const contextData = {
+      diseases,
+      patient_context: patientContext
+    };
+
     const parts = [
-      { text: JSON.stringify({ diseases }) },
+      { text: JSON.stringify(contextData) },
       { inlineData: { data: b64, mimeType: mime } }
     ];
 
