@@ -19,10 +19,67 @@ const tempStatus = document.getElementById('temp-status');
 const tempC = document.getElementById('temp-c');
 const tempF = document.getElementById('temp-f');
 
+// Body diagram elements
+const bodyParts = document.querySelectorAll('.body-part');
+const selectedBodyPartsDisplay = document.getElementById('selected-body-parts');
+let selectedBodyParts = new Set();
+
+// Medical history elements
+const medication = document.getElementById('medication');
+const isAntibiotic = document.getElementById('is-antibiotic');
+const measlesVaccine = document.getElementById('measles-vaccine');
+const chickenpoxVaccine = document.getElementById('chickenpox-vaccine');
+const generalCondition = document.getElementById('general-condition');
+
+// Symptom checkboxes
+const soreThroat = document.getElementById('sore-throat');
+const cough = document.getElementById('cough');
+const vomiting = document.getElementById('vomiting');
+const diarrhea = document.getElementById('diarrhea');
+const shortnessBreath = document.getElementById('shortness-breath');
+
+// Body diagram interaction
+bodyParts.forEach(part => {
+  part.addEventListener('click', (e) => {
+    const partName = e.target.dataset.part;
+    if (selectedBodyParts.has(partName)) {
+      selectedBodyParts.delete(partName);
+      e.target.classList.remove('selected');
+    } else {
+      selectedBodyParts.add(partName);
+      e.target.classList.add('selected');
+    }
+    updateSelectedBodyParts();
+  });
+});
+
+function updateSelectedBodyParts() {
+  if (selectedBodyParts.size === 0) {
+    selectedBodyPartsDisplay.textContent = 'None';
+  } else {
+    selectedBodyPartsDisplay.textContent = Array.from(selectedBodyParts).join(', ');
+  }
+}
+
+// Handle multiple elements with same data-part (like arms and legs)
+document.addEventListener('click', (e) => {
+  if (e.target.classList.contains('body-part')) {
+    const partName = e.target.dataset.part;
+    const allSameParts = document.querySelectorAll(`[data-part="${partName}"]`);
+    
+    if (selectedBodyParts.has(partName)) {
+      selectedBodyParts.delete(partName);
+      allSameParts.forEach(part => part.classList.remove('selected'));
+    } else {
+      selectedBodyParts.add(partName);
+      allSameParts.forEach(part => part.classList.add('selected'));
+    }
+    updateSelectedBodyParts();
+  }
+});
+
 let chart;
 let isCelsius = true;
-
-// Temperature unit toggle
 tempC.addEventListener('click', () => {
   if (!isCelsius) {
     isCelsius = true;
@@ -266,7 +323,7 @@ goBtn.addEventListener('click', async () => {
     const fd = new FormData();
     fd.append('photo', fileBlob);
     
-    // Add patient metadata
+    // Add comprehensive patient metadata
     const patientData = {};
     
     if (ageYears.value || ageMonths.value) {
@@ -281,9 +338,40 @@ goBtn.addEventListener('click', async () => {
     
     if (temperature.value) {
       const temp = parseFloat(temperature.value);
-      // Always send temperature in Celsius to server
       patientData.temperature_celsius = isCelsius ? temp : ((temp - 32) * 5/9);
       patientData.fever_present = patientData.temperature_celsius >= 38.0;
+    }
+
+    // Rash distribution
+    if (selectedBodyParts.size > 0) {
+      patientData.rash_distribution = Array.from(selectedBodyParts);
+    }
+
+    // Medication
+    if (medication.value.trim()) {
+      patientData.recent_medication = medication.value.trim();
+      patientData.antibiotic_use = isAntibiotic.checked;
+    }
+
+    // Vaccination status
+    patientData.measles_vaccine = measlesVaccine.checked;
+    patientData.chickenpox_vaccine = chickenpoxVaccine.checked;
+
+    // General condition
+    if (generalCondition.value) {
+      patientData.general_condition = generalCondition.value;
+    }
+
+    // Symptoms
+    const symptoms = [];
+    if (soreThroat.checked) symptoms.push('sore_throat');
+    if (cough.checked) symptoms.push('cough');
+    if (vomiting.checked) symptoms.push('vomiting');
+    if (diarrhea.checked) symptoms.push('diarrhea');
+    if (shortnessBreath.checked) symptoms.push('shortness_of_breath');
+    
+    if (symptoms.length > 0) {
+      patientData.accompanying_symptoms = symptoms;
     }
     
     if (Object.keys(patientData).length > 0) {
@@ -305,6 +393,49 @@ goBtn.addEventListener('click', async () => {
     }
 
     jsonBox.textContent = JSON.stringify(data, null, 2);
+
+    // Show triage level with color coding
+    if (data.triage_level) {
+      const triageIndicator = document.createElement('div');
+      triageIndicator.style.marginTop = '8px';
+      triageIndicator.style.padding = '8px 12px';
+      triageIndicator.style.borderRadius = '6px';
+      triageIndicator.style.fontWeight = 'bold';
+      triageIndicator.style.textAlign = 'center';
+      
+      switch(data.triage_level) {
+        case 'Green':
+          triageIndicator.style.background = 'rgba(34, 197, 94, 0.15)';
+          triageIndicator.style.color = '#bbf7d0';
+          triageIndicator.innerHTML = '🟢 GREEN - Low Risk';
+          break;
+        case 'Yellow':
+          triageIndicator.style.background = 'rgba(251, 191, 36, 0.15)';
+          triageIndicator.style.color = '#fef3c7';
+          triageIndicator.innerHTML = '🟡 YELLOW - Moderate Risk';
+          break;
+        case 'Yellow/Red':
+          triageIndicator.style.background = 'rgba(249, 115, 22, 0.15)';
+          triageIndicator.style.color = '#fed7aa';
+          triageIndicator.innerHTML = '🟠 YELLOW/RED - High Risk';
+          break;
+        case 'Red':
+          triageIndicator.style.background = 'rgba(239, 68, 68, 0.15)';
+          triageIndicator.style.color = '#fecaca';
+          triageIndicator.innerHTML = '🔴 RED - Emergency Risk';
+          break;
+      }
+      jsonBox.parentNode.insertBefore(triageIndicator, jsonBox.nextSibling);
+    }
+
+    // Show image quality warning if present
+    if (data.image_quality_warning) {
+      const qualityWarning = document.createElement('div');
+      qualityWarning.className = 'badge danger';
+      qualityWarning.style.marginTop = '8px';
+      qualityWarning.innerHTML = `⚠️ ${data.image_quality_warning}`;
+      jsonBox.parentNode.insertBefore(qualityWarning, jsonBox.nextSibling);
+    }
 
     if (Array.isArray(data.red_flags) && data.red_flags.length > 0) {
       urgent.style.display = 'inline-flex';
