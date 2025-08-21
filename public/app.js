@@ -59,6 +59,14 @@ function convertTemperature() {
       tempSlider.value = newTemp.toFixed(1);
       updateSliderScale();
     }
+  } else {
+    // Set default values when no temperature is entered
+    if (isCelsius) {
+      tempSlider.value = "37.0";
+    } else {
+      tempSlider.value = "98.6";
+    }
+    updateSliderScale();
   }
 }
 
@@ -67,11 +75,11 @@ function updateSliderScale() {
   if (isCelsius) {
     tempSlider.min = "35";
     tempSlider.max = "42";
-    labels.innerHTML = '<span>35°C</span><span>Normal</span><span>Fever</span><span>42°C</span>';
+    labels.innerHTML = '<span>35°C</span><span>Normal (36.1-37.2°C)</span><span>Fever (≥38°C)</span><span>42°C</span>';
   } else {
     tempSlider.min = "95";
     tempSlider.max = "107.6";
-    labels.innerHTML = '<span>95°F</span><span>Normal</span><span>Fever</span><span>107.6°F</span>';
+    labels.innerHTML = '<span>95°F</span><span>Normal (97-99°F)</span><span>Fever (≥100.4°F)</span><span>107.6°F</span>';
   }
   updateTemperatureStatus();
 }
@@ -86,7 +94,10 @@ function updateTemperatureStatus() {
 
   let tempInCelsius = isCelsius ? temp : ((temp - 32) * 5/9);
   
-  if (tempInCelsius < 37.0) {
+  if (tempInCelsius < 36.1) {
+    tempStatus.textContent = "Below Normal";
+    tempStatus.className = "temp-status temp-normal";
+  } else if (tempInCelsius <= 37.2) {
     tempStatus.textContent = "Normal Temperature";
     tempStatus.className = "temp-status temp-normal";
   } else if (tempInCelsius < 38.0) {
@@ -98,14 +109,22 @@ function updateTemperatureStatus() {
   }
 }
 
-// Sync slider and input
+// Sync slider and input with better precision
 function syncTemperatureInputs(source) {
   if (source === 'slider') {
-    temperature.value = tempSlider.value;
+    const sliderValue = parseFloat(tempSlider.value);
+    temperature.value = sliderValue.toFixed(1);
   } else if (source === 'input') {
-    const temp = parseFloat(temperature.value);
-    if (!isNaN(temp)) {
-      tempSlider.value = temp;
+    const inputValue = parseFloat(temperature.value);
+    if (!isNaN(inputValue)) {
+      // Clamp the input value to slider range
+      const min = parseFloat(tempSlider.min);
+      const max = parseFloat(tempSlider.max);
+      const clampedValue = Math.max(min, Math.min(max, inputValue));
+      tempSlider.value = clampedValue;
+      if (clampedValue !== inputValue) {
+        temperature.value = clampedValue.toFixed(1);
+      }
     }
   }
   updateTemperatureStatus();
@@ -113,9 +132,11 @@ function syncTemperatureInputs(source) {
   enableGo();
 }
 
-// Temperature input listeners
+// Enhanced temperature input listeners with real-time sync
 tempSlider.addEventListener('input', () => syncTemperatureInputs('slider'));
+tempSlider.addEventListener('change', () => syncTemperatureInputs('slider'));
 temperature.addEventListener('input', () => syncTemperatureInputs('input'));
+temperature.addEventListener('change', () => syncTemperatureInputs('input'));
 
 // Validation functions
 function validateAge() {
@@ -194,6 +215,12 @@ ageMonths.addEventListener('input', () => {
 
 temperature.addEventListener('input', () => {
   syncTemperatureInputs('input');
+});
+
+// Initialize temperature controls on page load
+document.addEventListener('DOMContentLoaded', () => {
+  updateSliderScale();
+  updateTemperatureStatus();
 });
 
 function enableGo() { 
