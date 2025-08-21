@@ -14,6 +14,8 @@ const ageYears = document.getElementById('age-years');
 const ageMonths = document.getElementById('age-months');
 const biologicalSex = document.getElementById('biological-sex');
 const temperature = document.getElementById('temperature');
+const tempSlider = document.getElementById('temp-slider');
+const tempStatus = document.getElementById('temp-status');
 const tempC = document.getElementById('temp-c');
 const tempF = document.getElementById('temp-f');
 
@@ -27,6 +29,7 @@ tempC.addEventListener('click', () => {
     tempC.classList.add('active');
     tempF.classList.remove('active');
     convertTemperature();
+    updateSliderScale();
   }
 });
 
@@ -36,6 +39,7 @@ tempF.addEventListener('click', () => {
     tempF.classList.add('active');
     tempC.classList.remove('active');
     convertTemperature();
+    updateSliderScale();
   }
 });
 
@@ -44,13 +48,74 @@ function convertTemperature() {
   if (!isNaN(temp)) {
     if (isCelsius) {
       // Convert F to C
-      temperature.value = ((temp - 32) * 5/9).toFixed(1);
+      const newTemp = ((temp - 32) * 5/9);
+      temperature.value = newTemp.toFixed(1);
+      tempSlider.value = newTemp.toFixed(1);
+      updateSliderScale();
     } else {
-      // Convert C to F
-      temperature.value = (temp * 9/5 + 32).toFixed(1);
+      // Convert C to F  
+      const newTemp = (temp * 9/5 + 32);
+      temperature.value = newTemp.toFixed(1);
+      tempSlider.value = newTemp.toFixed(1);
+      updateSliderScale();
     }
   }
 }
+
+function updateSliderScale() {
+  const labels = document.querySelector('.temp-labels');
+  if (isCelsius) {
+    tempSlider.min = "35";
+    tempSlider.max = "42";
+    labels.innerHTML = '<span>35°C</span><span>Normal</span><span>Fever</span><span>42°C</span>';
+  } else {
+    tempSlider.min = "95";
+    tempSlider.max = "107.6";
+    labels.innerHTML = '<span>95°F</span><span>Normal</span><span>Fever</span><span>107.6°F</span>';
+  }
+  updateTemperatureStatus();
+}
+
+function updateTemperatureStatus() {
+  const temp = parseFloat(temperature.value);
+  if (isNaN(temp)) {
+    tempStatus.textContent = "Enter temperature";
+    tempStatus.className = "temp-status temp-normal";
+    return;
+  }
+
+  let tempInCelsius = isCelsius ? temp : ((temp - 32) * 5/9);
+  
+  if (tempInCelsius < 37.0) {
+    tempStatus.textContent = "Normal Temperature";
+    tempStatus.className = "temp-status temp-normal";
+  } else if (tempInCelsius < 38.0) {
+    tempStatus.textContent = "Slightly Elevated";
+    tempStatus.className = "temp-status temp-elevated";
+  } else {
+    tempStatus.textContent = "Fever Detected";
+    tempStatus.className = "temp-status temp-fever";
+  }
+}
+
+// Sync slider and input
+function syncTemperatureInputs(source) {
+  if (source === 'slider') {
+    temperature.value = tempSlider.value;
+  } else if (source === 'input') {
+    const temp = parseFloat(temperature.value);
+    if (!isNaN(temp)) {
+      tempSlider.value = temp;
+    }
+  }
+  updateTemperatureStatus();
+  validateTemperature();
+  enableGo();
+}
+
+// Temperature input listeners
+tempSlider.addEventListener('input', () => syncTemperatureInputs('slider'));
+temperature.addEventListener('input', () => syncTemperatureInputs('input'));
 
 // Validation functions
 function validateAge() {
@@ -128,8 +193,7 @@ ageMonths.addEventListener('input', () => {
 });
 
 temperature.addEventListener('input', () => {
-  validateTemperature();
-  enableGo();
+  syncTemperatureInputs('input');
 });
 
 function enableGo() { 
