@@ -1,4 +1,82 @@
-# Complete Prompt: Pediatric Rash Analysis Application
+### Server-Side AI Model Considerations
+The AI model should be specifically instructed about body part significance:
+
+```javascript
+// Body part significance for diagnosis:
+// hands + feet + mouth = strongly suggests HFMD
+// hands only = contact dermatitis, atopic dermatitis flare  
+// feet only = contact dermatitis (shoes), fungal infection
+// head/face = impetigo, viral exanthems, fifth_disease
+// chest/abdomen = viral rashes, drug eruptions
+// back/hips = viral rashes, drug eruptions
+// throat/nape = viral pharyngitis with rash
+// arms/legs = generalized viral rashes, drug eruptions
+```
+
+### Body Part Validation
+Server-side validation should include:
+```javascript
+const validBodyParts = ['head', 'throat', 'nape', 'chest', 'abdomen', 'back', 'hips', 'arms', 'hands', 'legs', 'feet'];
+```### SVG Body Diagram Implementation
+```html
+<!-- Front View -->
+<svg class="body-diagram" viewBox="0 0 250 500">
+  <!-- Head -->
+  <path class="body-part" data-part="head" d="M125,10 C100,10 80,30 80,55 C80,80 100,100 125,100 C150,100 170,80 170,55 C170,30 150,10 125,10 Z"/>
+  <!-- Throat -->
+  <path class="body-part" data-part="throat" d="M110,100 L140,100 L140,120 L110,120 Z"/>
+  <!-- Chest -->
+  <path class="body-part" data-part="chest" d="M90,120 L160,120 L170,190 L80,190 Z"/>
+  <!-- Abdomen -->
+  <path class="body-part" data-part="abdomen" d="M85,190 L165,190 L160,250 L90,250 Z"/>
+  <!-- Left Arm -->
+  <path class="body-part" data-part="arms" d="M80,125 L60,130 L50,230 L75,225 Z"/>
+  <!-- Right Arm -->
+  <path class="body-part" data-part="arms" d="M170,125 L190,130 L200,230 L175,225 Z"/>
+  <!-- Left Hand -->
+  <path class="body-part" data-part="hands" d="M50,230 C40,230 35,240 45,250 C55,260 60,250 50,230 Z"/>
+  <!-- Right Hand -->
+  <path class="body-part" data-part="hands" d="M200,230 C210,230 215,240 205,250 C195,260 190,250 200,230 Z"/>
+  <!-- Hips (front) -->
+  <path class="body-part" data-part="hips" d="M90,250 L160,250 L155,280 L95,280 Z" />
+  <!-- Left Leg -->
+  <path class="body-part" data-part="legs" d="M95,280 L85,450 L115,450 L110,280 Z"/>
+  <!-- Right Leg -->
+  <path class="body-part" data-part="legs" d="M155,280 L165,450 L135,450 L140,280 Z"/>
+  <!-- Left Foot -->
+  <path class="body-part" data-part="feet" d="M85,450 L75,455 L95,465 L115,450 Z"/>
+  <!-- Right Foot -->
+  <path class="body-part" data-part="feet" d="M165,450 L175,455 L155,465 L135,450 Z"/>
+</svg>
+
+<!-- Back View -->
+<svg class="body-diagram" viewBox="0 0 250 500">
+  <!-- Head -->
+  <path class="body-part" data-part="head" d="M125,10 C100,10 80,30 80,55 C80,80 100,100 125,100 C150,100 170,80 170,55 C170,30 150,10 125,10 Z"/>
+  <!-- Nape -->
+  <path class="body-part" data-part="nape" d="M110,100 L140,100 L140,120 L110,120 Z"/>
+  <!-- Back -->
+  <path class="body-part" data-part="back" d="M90,120 L160,120 L165,250 L85,250 Z"/>
+  <!-- Left Arm -->
+  <path class="body-part" data-part="arms" d="M80,125 L60,130 L50,230 L75,225 Z"/>
+  <!-- Right Arm -->
+  <path class="body-part" data-part="arms" d="M170,125 L190,130 L200,230 L175,225 Z"/>
+  <!-- Left Hand -->
+  <path class="body-part" data-part="hands" d="M50,230 C40,230 35,240 45,250 C55,260 60,250 50,230 Z"/>
+  <!-- Right Hand -->
+  <path class="body-part" data-part="hands" d="M200,230 C210,230 215,240 205,250 C195,260 190,250 200,230 Z"/>
+  <!-- Hips (back) -->
+  <path class="body-part" data-part="hips" d="M90,250 L160,250 L155,280 L95,280 Z" />
+  <!-- Left Leg -->
+  <path class="body-part" data-part="legs" d="M95,280 L85,450 L115,450 L110,280 Z"/>
+  <!-- Right Leg -->
+  <path class="body-part" data-part="legs" d="M155,280 L165,450 L135,450 L140,280 Z"/>
+  <!-- Left Foot -->
+  <path class="body-part" data-part="feet" d="M85,450 L75,455 L95,465 L115,450 Z"/>
+  <!-- Right Foot -->
+  <path class="body-part" data-part="feet" d="M165,450 L175,455 L155,465 L135,450 Z"/>
+</svg>
+```# Complete Prompt: Pediatric Rash Analysis Application
 
 Create a comprehensive web application for pediatric rash analysis using AI image recognition. The application should allow healthcare professionals to upload rash images and get automated triage suggestions based on visual analysis and patient context data.
 
@@ -43,15 +121,15 @@ Create a comprehensive web application for pediatric rash analysis using AI imag
 
 ### 4. Interactive Body Diagram
 - **Dual view**: Front and back body diagrams using SVG
-- **Clickable regions**: Head, throat/nape, chest, abdomen/back, arms, legs, hips
+- **Clickable regions**: Head, throat/nape, chest, abdomen/back, arms, hands, legs, feet, hips
 - **Visual feedback**: Hover effects and selection highlighting
 - **Multi-selection**: Click to toggle, supports multiple body parts
 - **Reset functionality**: Clear all selections with one button
 - **Real-time display**: Shows selected areas as comma-separated list
 
 Body parts mapping:
-- Front: head, throat, chest, abdomen, arms, legs
-- Back: head, nape, back, hips, arms, legs
+- Front: head, throat, chest, abdomen, arms, hands, legs, feet
+- Back: head, nape, back, hips, arms, hands, legs, feet
 
 ### 5. Medical History Collection
 - **Medication tracking**: Free text input for recent medications
@@ -138,7 +216,7 @@ const ALLOWED_LABELS = [
   "biological_sex": "M|F",
   "temperature_celsius": "number (32-45)",
   "fever_present": "boolean",
-  "rash_distribution": ["body_part_array"],
+  "rash_distribution": ["head", "throat", "nape", "chest", "abdomen", "back", "hips", "arms", "hands", "legs", "feet"],
   "recent_medication": "string",
   "antibiotic_use": "boolean",
   "measles_vaccine": "boolean",

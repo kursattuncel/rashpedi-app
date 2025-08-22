@@ -61,7 +61,7 @@
     .body-diagrams { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
     .body-view { display: flex; flex-direction: column; align-items: center; }
     .body-view h4 { margin: 0 0 8px 0; font-size: 14px; color: var(--accent); }
-    .body-diagram { width: 180px; height: 280px; border: 1px solid rgba(255,255,255,.12); border-radius: 12px; 
+    .body-diagram { width: 180px; height: 380px; border: 1px solid rgba(255,255,255,.12); border-radius: 12px; 
       background: rgba(255,255,255,.02); padding: 10px; }
     .body-part { fill: rgba(255,255,255,.1); stroke: rgba(255,255,255,.3); stroke-width: 1; cursor: pointer; transition: .2s ease; }
     .body-part:hover { fill: rgba(125, 211, 252, .3); stroke: var(--accent); }
@@ -171,63 +171,63 @@
           <div class="body-diagrams">
             <div class="body-view">
               <h4>Front View</h4>
-              <svg class="body-diagram" viewBox="0 0 200 300" xmlns="http://www.w3.org/2000/svg">
+              <svg class="body-diagram" viewBox="0 0 250 500" xmlns="http://www.w3.org/2000/svg">
                 <!-- Head -->
-                <circle cx="100" cy="30" r="25" class="body-part" data-part="head"/>
-                <text x="100" y="35" text-anchor="middle" class="body-label">Head</text>
-                
+                <path class="body-part" data-part="head" d="M125,10 C100,10 80,30 80,55 C80,80 100,100 125,100 C150,100 170,80 170,55 C170,30 150,10 125,10 Z"/>
                 <!-- Throat -->
-                <rect x="85" y="50" width="30" height="15" class="body-part" data-part="throat"/>
-                <text x="100" y="62" text-anchor="middle" class="body-label">Throat</text>
-                
+                <path class="body-part" data-part="throat" d="M110,100 L140,100 L140,120 L110,120 Z"/>
                 <!-- Chest -->
-                <rect x="70" y="70" width="60" height="50" class="body-part" data-part="chest"/>
-                <text x="100" y="100" text-anchor="middle" class="body-label">Chest</text>
-                
+                <path class="body-part" data-part="chest" d="M90,120 L160,120 L170,190 L80,190 Z"/>
                 <!-- Abdomen -->
-                <rect x="75" y="125" width="50" height="40" class="body-part" data-part="abdomen"/>
-                <text x="100" y="150" text-anchor="middle" class="body-label">Abdomen</text>
-                
-                <!-- Arms -->
-                <rect x="40" y="80" width="25" height="60" class="body-part" data-part="arms"/>
-                <rect x="135" y="80" width="25" height="60" class="body-part" data-part="arms"/>
-                <text x="30" y="115" text-anchor="middle" class="body-label">Arms</text>
-                
-                <!-- Legs -->
-                <rect x="80" y="170" width="15" height="80" class="body-part" data-part="legs"/>
-                <rect x="105" y="170" width="15" height="80" class="body-part" data-part="legs"/>
-                <text x="100" y="270" text-anchor="middle" class="body-label">Legs</text>
+                <path class="body-part" data-part="abdomen" d="M85,190 L165,190 L160,250 L90,250 Z"/>
+                <!-- Left Arm -->
+                <path class="body-part" data-part="arms" d="M80,125 L60,130 L50,230 L75,225 Z"/>
+                <!-- Right Arm -->
+                <path class="body-part" data-part="arms" d="M170,125 L190,130 L200,230 L175,225 Z"/>
+                <!-- Left Hand -->
+                <path class="body-part" data-part="hands" d="M50,230 C40,230 35,240 45,250 C55,260 60,250 50,230 Z"/>
+                <!-- Right Hand -->
+                <path class="body-part" data-part="hands" d="M200,230 C210,230 215,240 205,250 C195,260 190,250 200,230 Z"/>
+                <!-- Hips (front) -->
+                <path class="body-part" data-part="hips" d="M90,250 L160,250 L155,280 L95,280 Z" />
+                <!-- Left Leg -->
+                <path class="body-part" data-part="legs" d="M95,280 L85,450 L115,450 L110,280 Z"/>
+                <!-- Right Leg -->
+                <path class="body-part" data-part="legs" d="M155,280 L165,450 L135,450 L140,280 Z"/>
+                <!-- Left Foot -->
+                <path class="body-part" data-part="feet" d="M85,450 L75,455 L95,465 L115,450 Z"/>
+                <!-- Right Foot -->
+                <path class="body-part" data-part="feet" d="M165,450 L175,455 L155,465 L135,450 Z"/>
               </svg>
             </div>
             
             <div class="body-view">
               <h4>Back View</h4>
-              <svg class="body-diagram" viewBox="0 0 200 300" xmlns="http://www.w3.org/2000/svg">
-                <!-- Head back -->
-                <circle cx="100" cy="30" r="25" class="body-part" data-part="head"/>
-                <text x="100" y="35" text-anchor="middle" class="body-label">Head</text>
-                
+              <svg class="body-diagram" viewBox="0 0 250 500" xmlns="http://www.w3.org/2000/svg">
+                <!-- Head -->
+                <path class="body-part" data-part="head" d="M125,10 C100,10 80,30 80,55 C80,80 100,100 125,100 C150,100 170,80 170,55 C170,30 150,10 125,10 Z"/>
                 <!-- Nape -->
-                <rect x="85" y="50" width="30" height="15" class="body-part" data-part="nape"/>
-                <text x="100" y="62" text-anchor="middle" class="body-label">Nape</text>
-                
+                <path class="body-part" data-part="nape" d="M110,100 L140,100 L140,120 L110,120 Z"/>
                 <!-- Back -->
-                <rect x="70" y="70" width="60" height="60" class="body-part" data-part="back"/>
-                <text x="100" y="105" text-anchor="middle" class="body-label">Back</text>
-                
-                <!-- Hips -->
-                <rect x="75" y="135" width="50" height="30" class="body-part" data-part="hips"/>
-                <text x="100" y="155" text-anchor="middle" class="body-label">Hips</text>
-                
-                <!-- Arms back -->
-                <rect x="40" y="80" width="25" height="60" class="body-part" data-part="arms"/>
-                <rect x="135" y="80" width="25" height="60" class="body-part" data-part="arms"/>
-                <text x="170" y="115" text-anchor="middle" class="body-label">Arms</text>
-                
-                <!-- Legs back -->
-                <rect x="80" y="170" width="15" height="80" class="body-part" data-part="legs"/>
-                <rect x="105" y="170" width="15" height="80" class="body-part" data-part="legs"/>
-                <text x="100" y="270" text-anchor="middle" class="body-label">Legs</text>
+                <path class="body-part" data-part="back" d="M90,120 L160,120 L165,250 L85,250 Z"/>
+                <!-- Left Arm -->
+                <path class="body-part" data-part="arms" d="M80,125 L60,130 L50,230 L75,225 Z"/>
+                <!-- Right Arm -->
+                <path class="body-part" data-part="arms" d="M170,125 L190,130 L200,230 L175,225 Z"/>
+                <!-- Left Hand -->
+                <path class="body-part" data-part="hands" d="M50,230 C40,230 35,240 45,250 C55,260 60,250 50,230 Z"/>
+                <!-- Right Hand -->
+                <path class="body-part" data-part="hands" d="M200,230 C210,230 215,240 205,250 C195,260 190,250 200,230 Z"/>
+                <!-- Hips (back) -->
+                <path class="body-part" data-part="hips" d="M90,250 L160,250 L155,280 L95,280 Z" />
+                <!-- Left Leg -->
+                <path class="body-part" data-part="legs" d="M95,280 L85,450 L115,450 L110,280 Z"/>
+                <!-- Right Leg -->
+                <path class="body-part" data-part="legs" d="M155,280 L165,450 L135,450 L140,280 Z"/>
+                <!-- Left Foot -->
+                <path class="body-part" data-part="feet" d="M85,450 L75,455 L95,465 L115,450 Z"/>
+                <!-- Right Foot -->
+                <path class="body-part" data-part="feet" d="M165,450 L175,455 L155,465 L135,450 Z"/>
               </svg>
             </div>
           </div>
