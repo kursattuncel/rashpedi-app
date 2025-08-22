@@ -395,8 +395,13 @@ goBtn.addEventListener('click', async () => {
       patientData.accompanying_symptoms = symptoms;
     }
     
+    // Display input data in the input box
+    const inputBox = document.getElementById('input-json');
     if (Object.keys(patientData).length > 0) {
+      inputBox.textContent = JSON.stringify(patientData, null, 2);
       fd.append('patient_context', JSON.stringify(patientData));
+    } else {
+      inputBox.textContent = '{}';
     }
 
     const r = await fetch('/api/analyze', { method: 'POST', body: fd });

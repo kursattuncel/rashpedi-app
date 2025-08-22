@@ -102,3 +102,233 @@
 <body>
   <header>
     <div class="brand">Rash Advice 👵 (Not Medical Advice)</div>
+    <div class="tagline">"Upload a photo to receive a gentle, JSON-backed scoring."</div>
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <h2>Upload & Analyze</h2>
+      <div id="drop" class="drop">
+        <input id="file" type="file" accept="image/*" hidden />
+        <div>Drop an image here or <u>click to choose</u></div>
+        <div style="font-size:12px;color:#9aa4b2;margin-top:6px;">JPEG/PNG, up to 5 MB</div>
+      </div>
+      <div class="preview" id="preview"><img id="thumb" alt="preview"></div>
+      
+      <div class="form-group">
+        <label>Patient Information</label>
+        <div class="form-row">
+          <div>
+            <label for="age-years">Age (Years)</label>
+            <input id="age-years" type="number" min="0" max="18" placeholder="0-18" />
+            <div id="age-years-error" class="error"></div>
+          </div>
+          <div>
+            <label for="age-months">Age (Months)</label>
+            <input id="age-months" type="number" min="0" max="11" placeholder="0-11" />
+            <div id="age-months-error" class="error"></div>
+          </div>
+          <div>
+            <label for="biological-sex">Biological Sex</label>
+            <select id="biological-sex">
+              <option value="">Select</option>
+              <option value="M">Male</option>
+              <option value="F">Female</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="row" style="justify-content: center; margin-top: 20px;">
+        <button id="go" disabled>Get Suggestion</button>
+      </div>
+
+      <div class="form-group">
+        <label>Max Measured Temperature (within 6h)</label>
+        <div class="temp-container">
+          <div class="temp-input-row">
+            <input id="temperature" type="number" step="0.1" placeholder="Enter temperature" />
+            <div class="unit-toggle active" id="temp-c">°C</div>
+            <div class="unit-toggle" id="temp-f">°F</div>
+          </div>
+          <div class="temp-slider-container">
+            <input id="temp-slider" type="range" class="temp-slider" min="35" max="42" step="0.1" value="37" />
+            <div class="temp-labels">
+              <span>35°C</span>
+              <span>Normal (36.1-37.2°C)</span>
+              <span>Fever (≥38°C)</span>
+              <span>42°C</span>
+            </div>
+          </div>
+          <div id="temp-status" class="temp-status temp-normal">Normal Temperature</div>
+        </div>
+        <div id="temperature-error" class="error"></div>
+      </div>
+
+      <div class="form-group">
+        <label>Rash Distribution (where did it start?)</label>
+        <div class="body-diagram-container">
+          <div class="body-diagrams">
+            <div class="body-view">
+              <h4>Front View</h4>
+              <svg class="body-diagram" viewBox="0 0 200 300" xmlns="http://www.w3.org/2000/svg">
+                <!-- Head -->
+                <circle cx="100" cy="30" r="25" class="body-part" data-part="head"/>
+                <text x="100" y="35" text-anchor="middle" class="body-label">Head</text>
+                
+                <!-- Throat -->
+                <rect x="85" y="50" width="30" height="15" class="body-part" data-part="throat"/>
+                <text x="100" y="62" text-anchor="middle" class="body-label">Throat</text>
+                
+                <!-- Chest -->
+                <rect x="70" y="70" width="60" height="50" class="body-part" data-part="chest"/>
+                <text x="100" y="100" text-anchor="middle" class="body-label">Chest</text>
+                
+                <!-- Abdomen -->
+                <rect x="75" y="125" width="50" height="40" class="body-part" data-part="abdomen"/>
+                <text x="100" y="150" text-anchor="middle" class="body-label">Abdomen</text>
+                
+                <!-- Arms -->
+                <rect x="40" y="80" width="25" height="60" class="body-part" data-part="arms"/>
+                <rect x="135" y="80" width="25" height="60" class="body-part" data-part="arms"/>
+                <text x="30" y="115" text-anchor="middle" class="body-label">Arms</text>
+                
+                <!-- Legs -->
+                <rect x="80" y="170" width="15" height="80" class="body-part" data-part="legs"/>
+                <rect x="105" y="170" width="15" height="80" class="body-part" data-part="legs"/>
+                <text x="100" y="270" text-anchor="middle" class="body-label">Legs</text>
+              </svg>
+            </div>
+            
+            <div class="body-view">
+              <h4>Back View</h4>
+              <svg class="body-diagram" viewBox="0 0 200 300" xmlns="http://www.w3.org/2000/svg">
+                <!-- Head back -->
+                <circle cx="100" cy="30" r="25" class="body-part" data-part="head"/>
+                <text x="100" y="35" text-anchor="middle" class="body-label">Head</text>
+                
+                <!-- Nape -->
+                <rect x="85" y="50" width="30" height="15" class="body-part" data-part="nape"/>
+                <text x="100" y="62" text-anchor="middle" class="body-label">Nape</text>
+                
+                <!-- Back -->
+                <rect x="70" y="70" width="60" height="60" class="body-part" data-part="back"/>
+                <text x="100" y="105" text-anchor="middle" class="body-label">Back</text>
+                
+                <!-- Hips -->
+                <rect x="75" y="135" width="50" height="30" class="body-part" data-part="hips"/>
+                <text x="100" y="155" text-anchor="middle" class="body-label">Hips</text>
+                
+                <!-- Arms back -->
+                <rect x="40" y="80" width="25" height="60" class="body-part" data-part="arms"/>
+                <rect x="135" y="80" width="25" height="60" class="body-part" data-part="arms"/>
+                <text x="170" y="115" text-anchor="middle" class="body-label">Arms</text>
+                
+                <!-- Legs back -->
+                <rect x="80" y="170" width="15" height="80" class="body-part" data-part="legs"/>
+                <rect x="105" y="170" width="15" height="80" class="body-part" data-part="legs"/>
+                <text x="100" y="270" text-anchor="middle" class="body-label">Legs</text>
+              </svg>
+            </div>
+          </div>
+          <div class="selected-parts">
+            <strong>Selected areas: </strong>
+            <span id="selected-body-parts">None</span>
+            <button id="reset-body-parts" class="reset-btn">Reset Selection</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="medication">Recent Medication Use</label>
+        <div class="medication-container">
+          <input id="medication" type="text" placeholder="Enter medication names (e.g., Amoxicillin, Tylenol)" />
+          <label class="checkbox-label">
+            <input id="is-antibiotic" type="checkbox" />
+            <span class="checkmark"></span>
+            Contains antibiotics
+          </label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Vaccination History</label>
+        <div class="vaccine-row">
+          <label class="checkbox-label">
+            <input id="measles-vaccine" type="checkbox" />
+            <span class="checkmark"></span>
+            Measles
+          </label>
+          <label class="checkbox-label">
+            <input id="chickenpox-vaccine" type="checkbox" />
+            <span class="checkmark"></span>
+            Chickenpox
+          </label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="general-condition">General Condition</label>
+        <select id="general-condition">
+          <option value="">Select condition</option>
+          <option value="playing">Playing normally</option>
+          <option value="lethargic">Lethargic/tired</option>
+          <option value="difficult_to_wake">Difficult to wake up</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Accompanying Symptoms</label>
+        <div class="symptoms-grid">
+          <label class="checkbox-label">
+            <input id="sore-throat" type="checkbox" />
+            <span class="checkmark"></span>
+            Sore throat
+          </label>
+          <label class="checkbox-label">
+            <input id="cough" type="checkbox" />
+            <span class="checkmark"></span>
+            Cough
+          </label>
+          <label class="checkbox-label">
+            <input id="vomiting" type="checkbox" />
+            <span class="checkmark"></span>
+            Vomiting
+          </label>
+          <label class="checkbox-label">
+            <input id="diarrhea" type="checkbox" />
+            <span class="checkmark"></span>
+            Diarrhea
+          </label>
+          <label class="checkbox-label">
+            <input id="shortness-breath" type="checkbox" />
+            <span class="checkmark"></span>
+            Shortness of breath
+          </label>
+        </div>
+      </div>
+
+      <div id="urgent" class="badge danger" style="display:none;margin-top:12px;">
+        ⚠️ Red flags detected. Please contact your doctor or seek urgent care immediately.
+      </div>
+
+      <div class="disclaimer">
+        <strong>Disclaimer:</strong> This output is not a medical diagnosis or treatment advice.
+        <u>No patient images are stored by this system; only anonymized metadata may be retained.</u>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Results</h2>
+      <h3>Input Data Sent for Analysis</h3>
+      <div class="json" id="input-json">Awaiting form data…</div>
+      <h3>Analysis Results</h3>
+      <canvas id="chart" height="220" style="margin-bottom:14px;"></canvas>
+      <div class="json" id="json">Awaiting analysis…</div>
+      <div id="ok" class="badge ok" style="display:none;margin-top:12px;">
+        ✅ No red flags reported in the visual assessment.
+      </div>
+    </section>
+  </main>
+</body>
+</html>
