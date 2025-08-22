@@ -20,7 +20,6 @@ const tempC = document.getElementById('temp-c');
 const tempF = document.getElementById('temp-f');
 
 // Body diagram elements
-const bodyParts = document.querySelectorAll('.body-part');
 const selectedBodyPartsDisplay = document.getElementById('selected-body-parts');
 let selectedBodyParts = new Set();
 
@@ -38,21 +37,6 @@ const vomiting = document.getElementById('vomiting');
 const diarrhea = document.getElementById('diarrhea');
 const shortnessBreath = document.getElementById('shortness-breath');
 
-// Body diagram interaction
-bodyParts.forEach(part => {
-  part.addEventListener('click', (e) => {
-    const partName = e.target.dataset.part;
-    if (selectedBodyParts.has(partName)) {
-      selectedBodyParts.delete(partName);
-      e.target.classList.remove('selected');
-    } else {
-      selectedBodyParts.add(partName);
-      e.target.classList.add('selected');
-    }
-    updateSelectedBodyParts();
-  });
-});
-
 function updateSelectedBodyParts() {
   if (selectedBodyParts.size === 0) {
     selectedBodyPartsDisplay.textContent = 'None';
@@ -61,19 +45,28 @@ function updateSelectedBodyParts() {
   }
 }
 
-// Handle multiple elements with same data-part (like arms and legs)
+// Single event handler for body diagram interaction
 document.addEventListener('click', (e) => {
   if (e.target.classList.contains('body-part')) {
+    e.preventDefault();
+    e.stopPropagation();
+    
     const partName = e.target.dataset.part;
+    if (!partName) return;
+    
+    // Find all elements with the same data-part (like arms and legs which appear on both front/back)
     const allSameParts = document.querySelectorAll(`[data-part="${partName}"]`);
     
     if (selectedBodyParts.has(partName)) {
+      // Remove selection
       selectedBodyParts.delete(partName);
       allSameParts.forEach(part => part.classList.remove('selected'));
     } else {
+      // Add selection
       selectedBodyParts.add(partName);
       allSameParts.forEach(part => part.classList.add('selected'));
     }
+    
     updateSelectedBodyParts();
   }
 });
