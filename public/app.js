@@ -278,6 +278,7 @@ temperature.addEventListener('input', () => {
 document.addEventListener('DOMContentLoaded', () => {
   updateSliderScale();
   updateTemperatureStatus();
+  setupBodyDiagram(); // Initialize body diagram
 });
 
 function enableGo() { 
@@ -376,10 +377,6 @@ goBtn.addEventListener('click', async () => {
     
     if (Object.keys(patientData).length > 0) {
       fd.append('patient_context', JSON.stringify(patientData));
-    }
-    
-    if (subset.value.trim()) {
-      fd.append('diseases', subset.value.trim());
     }
 
     const r = await fetch('/api/analyze', { method: 'POST', body: fd });

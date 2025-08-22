@@ -58,13 +58,16 @@
     .temp-elevated { background: rgba(251, 191, 36, 0.15); color: #fef3c7; }
     .temp-fever { background: rgba(239, 68, 68, 0.15); color: #fecaca; }
     .body-diagram-container { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 8px; }
-    .body-diagram { width: 200px; height: 300px; border: 1px solid rgba(255,255,255,.12); border-radius: 12px; 
+    .body-diagrams { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
+    .body-view { display: flex; flex-direction: column; align-items: center; }
+    .body-view h4 { margin: 0 0 8px 0; font-size: 14px; color: var(--accent); }
+    .body-diagram { width: 180px; height: 280px; border: 1px solid rgba(255,255,255,.12); border-radius: 12px; 
       background: rgba(255,255,255,.02); padding: 10px; }
     .body-part { fill: rgba(255,255,255,.1); stroke: rgba(255,255,255,.3); stroke-width: 1; cursor: pointer; transition: .2s ease; }
     .body-part:hover { fill: rgba(125, 211, 252, .3); stroke: var(--accent); }
     .body-part.selected { fill: rgba(125, 211, 252, .5); stroke: var(--accent); stroke-width: 2; }
     .body-label { fill: var(--text); font-size: 10px; pointer-events: none; }
-    .selected-parts { font-size: 12px; color: var(--muted); text-align: center; }
+    .selected-parts { font-size: 14px; color: var(--muted); text-align: center; margin-top: 12px; }
     .medication-container { display: flex; flex-direction: column; gap: 8px; }
     .checkbox-label { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; margin-top: 8px; }
     .checkbox-label input[type="checkbox"] { display: none; }
@@ -131,6 +134,10 @@
         </div>
       </div>
 
+      <div class="row" style="justify-content: center; margin-top: 20px;">
+        <button id="go" disabled>Get Grandma's Suggestion</button>
+      </div>
+
       <div class="form-group">
         <label>Max Measured Temperature (within 6h)</label>
         <div class="temp-container">
@@ -156,35 +163,63 @@
       <div class="form-group">
         <label>Rash Distribution (where did it start?)</label>
         <div class="body-diagram-container">
-          <svg class="body-diagram" viewBox="0 0 200 300" xmlns="http://www.w3.org/2000/svg">
-            <!-- Head -->
-            <circle id="body-head" cx="100" cy="30" r="25" class="body-part" data-part="head"/>
-            <text x="100" y="35" text-anchor="middle" class="body-label">Head</text>
+          <div class="body-diagrams">
+            <div class="body-view">
+              <h4>Front View</h4>
+              <svg class="body-diagram" viewBox="0 0 200 300" xmlns="http://www.w3.org/2000/svg">
+                <!-- Head -->
+                <circle cx="100" cy="30" r="25" class="body-part" data-part="head"/>
+                <text x="100" y="35" text-anchor="middle" class="body-label">Head</text>
+                
+                <!-- Throat -->
+                <rect x="85" y="50" width="30" height="15" class="body-part" data-part="throat"/>
+                <text x="100" y="62" text-anchor="middle" class="body-label">Throat</text>
+                
+                <!-- Chest -->
+                <rect x="70" y="70" width="60" height="50" class="body-part" data-part="chest"/>
+                <text x="100" y="100" text-anchor="middle" class="body-label">Chest</text>
+                
+                <!-- Abdomen -->
+                <rect x="75" y="125" width="50" height="40" class="body-part" data-part="abdomen"/>
+                <text x="100" y="150" text-anchor="middle" class="body-label">Abdomen</text>
+                
+                <!-- Arms -->
+                <rect x="40" y="80" width="25" height="60" class="body-part" data-part="arms"/>
+                <rect x="135" y="80" width="25" height="60" class="body-part" data-part="arms"/>
+                <text x="30" y="115" text-anchor="middle" class="body-label">Arms</text>
+                
+                <!-- Legs -->
+                <rect x="80" y="170" width="15" height="80" class="body-part" data-part="legs"/>
+                <rect x="105" y="170" width="15" height="80" class="body-part" data-part="legs"/>
+                <text x="100" y="270" text-anchor="middle" class="body-label">Legs</text>
+              </svg>
+            </div>
             
-            <!-- Throat -->
-            <rect id="body-throat" x="85" y="50" width="30" height="15" class="body-part" data-part="throat"/>
-            <text x="100" y="62" text-anchor="middle" class="body-label">Throat</text>
-            
-            <!-- Chest -->
-            <rect id="body-chest" x="70" y="70" width="60" height="50" class="body-part" data-part="chest"/>
-            <text x="100" y="100" text-anchor="middle" class="body-label">Chest</text>
-            
-            <!-- Abdomen -->
-            <rect id="body-abdomen" x="75" y="125" width="50" height="40" class="body-part" data-part="abdomen"/>
-            <text x="100" y="150" text-anchor="middle" class="body-label">Abdomen</text>
-            
-            <!-- Arms -->
-            <rect id="body-arms" x="40" y="80" width="25" height="60" class="body-part" data-part="arms"/>
-            <rect x="135" y="80" width="25" height="60" class="body-part" data-part="arms"/>
-            <text x="30" y="115" text-anchor="middle" class="body-label">Arms</text>
-            
-            <!-- Legs -->
-            <rect id="body-legs" x="80" y="170" width="15" height="80" class="body-part" data-part="legs"/>
-            <rect x="105" y="170" width="15" height="80" class="body-part" data-part="legs"/>
-            <text x="100" y="270" text-anchor="middle" class="body-label">Legs</text>
-          </svg>
+            <div class="body-view">
+              <h4>Back View</h4>
+              <svg class="body-diagram" viewBox="0 0 200 300" xmlns="http://www.w3.org/2000/svg">
+                <!-- Head back -->
+                <circle cx="100" cy="30" r="25" class="body-part" data-part="head"/>
+                <text x="100" y="35" text-anchor="middle" class="body-label">Head</text>
+                
+                <!-- Back -->
+                <rect x="70" y="70" width="60" height="95" class="body-part" data-part="back"/>
+                <text x="100" y="120" text-anchor="middle" class="body-label">Back</text>
+                
+                <!-- Arms back -->
+                <rect x="40" y="80" width="25" height="60" class="body-part" data-part="arms"/>
+                <rect x="135" y="80" width="25" height="60" class="body-part" data-part="arms"/>
+                <text x="170" y="115" text-anchor="middle" class="body-label">Arms</text>
+                
+                <!-- Legs back -->
+                <rect x="80" y="170" width="15" height="80" class="body-part" data-part="legs"/>
+                <rect x="105" y="170" width="15" height="80" class="body-part" data-part="legs"/>
+                <text x="100" y="270" text-anchor="middle" class="body-label">Legs</text>
+              </svg>
+            </div>
+          </div>
           <div class="selected-parts">
-            <span>Selected areas: </span>
+            <strong>Selected areas: </strong>
             <span id="selected-body-parts">None</span>
           </div>
         </div>
@@ -208,12 +243,12 @@
           <label class="checkbox-label">
             <input id="measles-vaccine" type="checkbox" />
             <span class="checkmark"></span>
-            Measles vaccination received
+            Measles vaccination
           </label>
           <label class="checkbox-label">
             <input id="chickenpox-vaccine" type="checkbox" />
             <span class="checkmark"></span>
-            Chickenpox vaccination received
+            Chickenpox vaccination
           </label>
         </div>
       </div>
@@ -257,11 +292,6 @@
             Shortness of breath
           </label>
         </div>
-      </div>
-
-      <div class="row">
-        <input id="subset" type="text" placeholder="Optional subset (comma-separated), e.g. varicella,measles,hfmd" />
-        <button id="go" disabled>Get Grandma's Suggestion</button>
       </div>
 
       <div class="preview" id="preview"><img id="thumb" alt="preview"></div>
