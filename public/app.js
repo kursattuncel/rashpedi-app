@@ -278,7 +278,6 @@ temperature.addEventListener('input', () => {
 document.addEventListener('DOMContentLoaded', () => {
   updateSliderScale();
   updateTemperatureStatus();
-  setupBodyDiagram(); // Initialize body diagram
 });
 
 function enableGo() { 
