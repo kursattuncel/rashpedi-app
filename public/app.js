@@ -21,6 +21,7 @@ const tempF = document.getElementById('temp-f');
 
 // Body diagram elements
 const selectedBodyPartsDisplay = document.getElementById('selected-body-parts');
+const resetBodyPartsBtn = document.getElementById('reset-body-parts');
 let selectedBodyParts = new Set();
 
 // Medical history elements
@@ -44,6 +45,17 @@ function updateSelectedBodyParts() {
     selectedBodyPartsDisplay.textContent = Array.from(selectedBodyParts).join(', ');
   }
 }
+
+function resetBodyParts() {
+  selectedBodyParts.clear();
+  document.querySelectorAll('.body-part.selected').forEach(part => {
+    part.classList.remove('selected');
+  });
+  updateSelectedBodyParts();
+}
+
+// Reset button event listener
+resetBodyPartsBtn.addEventListener('click', resetBodyParts);
 
 // Single event handler for body diagram interaction
 document.addEventListener('click', (e) => {
@@ -252,6 +264,21 @@ function validateForm() {
   return isAgeValid && isTempValid;
 }
 
+// Clear previous results
+function clearPreviousResults() {
+  // Remove any existing triage indicators
+  const existingTriage = document.querySelectorAll('.triage-indicator');
+  existingTriage.forEach(indicator => indicator.remove());
+  
+  // Remove any existing quality warnings
+  const existingWarnings = document.querySelectorAll('.quality-warning');
+  existingWarnings.forEach(warning => warning.remove());
+  
+  // Hide badges
+  urgent.style.display = 'none';
+  okBadge.style.display = 'none';
+}
+
 // Add validation listeners
 ageYears.addEventListener('input', () => {
   validateAge();
@@ -309,8 +336,9 @@ goBtn.addEventListener('click', async () => {
 
   goBtn.disabled = true;
   jsonBox.textContent = 'Analyzing…';
-  urgent.style.display = 'none';
-  okBadge.style.display = 'none';
+  
+  // Clear previous results
+  clearPreviousResults();
 
   try {
     const fd = new FormData();
@@ -386,6 +414,7 @@ goBtn.addEventListener('click', async () => {
     // Show triage level with color coding
     if (data.triage_level) {
       const triageIndicator = document.createElement('div');
+      triageIndicator.className = 'triage-indicator';
       triageIndicator.style.marginTop = '8px';
       triageIndicator.style.padding = '8px 12px';
       triageIndicator.style.borderRadius = '6px';
@@ -420,7 +449,7 @@ goBtn.addEventListener('click', async () => {
     // Show image quality warning if present
     if (data.image_quality_warning) {
       const qualityWarning = document.createElement('div');
-      qualityWarning.className = 'badge danger';
+      qualityWarning.className = 'badge danger quality-warning';
       qualityWarning.style.marginTop = '8px';
       qualityWarning.innerHTML = `⚠️ ${data.image_quality_warning}`;
       jsonBox.parentNode.insertBefore(qualityWarning, jsonBox.nextSibling);
