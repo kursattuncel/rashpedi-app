@@ -266,17 +266,35 @@ function validateForm() {
 
 // Clear previous results
 function clearPreviousResults() {
-  // Remove any existing triage indicators
-  const existingTriage = document.querySelectorAll('.triage-indicator');
+  // Remove any existing triage indicators (with multiple possible class names)
+  const existingTriage = document.querySelectorAll('.triage-indicator, [class*="triage"]');
   existingTriage.forEach(indicator => indicator.remove());
   
   // Remove any existing quality warnings
-  const existingWarnings = document.querySelectorAll('.quality-warning');
+  const existingWarnings = document.querySelectorAll('.quality-warning, .badge.danger:not(#urgent)');
   existingWarnings.forEach(warning => warning.remove());
+  
+  // Remove any dynamically added elements after jsonBox
+  const jsonBoxParent = jsonBox.parentNode;
+  let nextSibling = jsonBox.nextSibling;
+  while (nextSibling) {
+    const currentSibling = nextSibling;
+    nextSibling = nextSibling.nextSibling;
+    if (currentSibling.nodeType === 1 && // Element node
+        (currentSibling.classList.contains('triage-indicator') || 
+         currentSibling.classList.contains('quality-warning') ||
+         currentSibling.tagName === 'DIV')) {
+      currentSibling.remove();
+    }
+  }
   
   // Hide badges
   urgent.style.display = 'none';
   okBadge.style.display = 'none';
+  
+  // Clear input json display
+  const inputBox = document.getElementById('input-json');
+  inputBox.textContent = 'Awaiting form data…';
 }
 
 // Add validation listeners
