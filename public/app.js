@@ -413,8 +413,11 @@ goBtn.addEventListener('click', async () => {
       patientData.accompanying_symptoms = symptoms;
     }
     
-    // Display input data in the input box
+    // Display input data in the input box AND console
     const inputBox = document.getElementById('input-json');
+    console.log('Patient Data being sent:', patientData); // For debugging in console
+    console.log('Patient Data JSON string:', JSON.stringify(patientData, null, 2)); // Pretty printed
+    
     if (Object.keys(patientData).length > 0) {
       inputBox.textContent = JSON.stringify(patientData, null, 2);
       fd.append('patient_context', JSON.stringify(patientData));
